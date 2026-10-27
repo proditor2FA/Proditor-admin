@@ -82,8 +82,8 @@ code, d = call("tokens"); check("Test-Stick in freien Sticks", STICK in d.get("t
 
 code, d = call("create", {"user": T, "kind": "hotp"}); check("Art 'hotp' abgelehnt", code == 400, d.get("error", ""))
 code, d = call("create", {"user": T, "kind": "stick", "serial": "gibt-es-nicht-9999"}); check("unbekannter Stick abgelehnt", code == 400, d.get("error", ""))
-code, d = call("create", {"user": T, "kind": "stick", "serial": STICK, "description": "Test Proditor-Verwaltung"})
-check("Benutzer mit Proditor-Stick", code == 200 and d["user"]["algorithm"] == "hotp" and d["user"]["serial"] == STICK and d["user"]["digits"] == 8, d.get("error", ""))
+code, d = call("create", {"user": T, "kind": "stick", "serial": STICK})  # nur Pflichtangaben
+check("Benutzer mit Proditor-Stick nur mit Name + Stick", code == 200 and d["user"]["algorithm"] == "hotp" and d["user"]["serial"] == STICK and d["user"]["digits"] == 8, d.get("error", ""))
 code, d = call("create", {"user": T2, "kind": "stick", "serial": STICK}); check("vergebener Stick -> 409", code == 409, d.get("error", ""))
 code, d = call("tokens"); check("Test-Stick nicht mehr frei", STICK not in d.get("tokens", []))
 code, d = call("create", {"user": T, "kind": "totp"}); check("create doppelt -> 409", code == 409)
@@ -91,7 +91,7 @@ code, d = call("create", {"user": T2, "kind": "totp", "pin": "4711"}); check("Be
 check("PIN vorhanden -> Prefix-PIN aktiv", php(f'$m->ReadUserData("{T2}",false,true);echo $m->IsUserPrefixPin()?"1":"0";') == "1")
 check("ohne PIN -> kein Prefix-PIN", php(f'$m->ReadUserData("{T}",false,true);echo $m->IsUserPrefixPin()?"1":"0";') == "0")
 code, txt = call("qr", params=f"&user={T2}", raw=True); check("QR-Seite TOTP", code == 200 and "<img" in txt.lower())
-code, d = call("create", {"user": T3, "kind": "without2fa"}); check("Benutzer Without2FA", code == 200 and d["user"]["algorithm"] == "without2fa", d.get("error", ""))
+code, d = call("create", {"user": T3, "kind": "without2fa", "description": "", "email": ""}); check("Benutzer Without2FA nur mit Name", code == 200 and d["user"]["algorithm"] == "without2fa", d.get("error", ""))
 seed = SEED
 
 def hotp(seed_hex, counter, digits=8):
