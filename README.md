@@ -2,6 +2,8 @@
 
 Eine moderne Weboberfläche für [multiOTP](https://github.com/multiOTP/multiotp) (getestet mit 5.10.2.2 und PHP 8.4). Sie wird zusätzlich zur mitgelieferten Konsole installiert und ersetzt sie im Alltag.
 
+![Anmeldung bei Proditor-admin](docs/screenshot-login.png)
+
 ## Funktionen
 
 - Benutzerliste mit Sofortsuche nach Name, Beschreibung, Seriennummer und E-Mail
