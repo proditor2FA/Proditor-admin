@@ -30,15 +30,12 @@ Eine moderne Weboberfläche für [multiOTP](https://github.com/multiOTP/multiotp
 Voraussetzung ist ein multiOTP-Server mit nginx und php-fpm. Der Programmcode liegt unter `/usr/local/bin/multiotp`, die Daten unter `/etc/multiotp`.
 
 ```sh
-install -d -o root -g www-data -m 750 /usr/local/bin/multiotp-admin
-install -o root -g www-data -m 640 index.html app.css app.js api.php logo.png logo-icon.png favicon.png /usr/local/bin/multiotp-admin/
+git clone https://github.com/proditor2FA/Proditor-admin.git
+cd Proditor-admin
+sudo ./install.sh
 ```
 
-Danach die Blöcke aus [`docs/nginx-multiotp.conf`](docs/nginx-multiotp.conf) im HTTPS-Server von `/etc/nginx/sites-available/multiotp` **vor** dem allgemeinen `location ~ \.php$` einfügen. Bei einer anderen PHP-Version den Socket anpassen. Anschließend:
-
-```sh
-nginx -t && systemctl reload nginx
-```
+`install.sh` kopiert die Dateien nach `/usr/local/bin/multiotp-admin` und erkennt den php-fpm-Socket selbst. Die Blöcke aus [`docs/nginx-multiotp.conf`](docs/nginx-multiotp.conf) fügt es einmalig in `/etc/nginx/sites-available/multiotp` ein und sichert die Datei vorher. Danach prüft es die Konfiguration und lädt nginx neu. Du kannst es gefahrlos erneut ausführen, zum Beispiel für ein Update.
 
 Der erste Block leitet nur Browser von `/` auf `/admin/` um. `POST /` für den multiOTP-Webservice und Monitoring-Abfragen wie `check_http` landen weiter bei `multiotp.server.php`. Die alte Konsole bleibt unter `/multiotp.server.php` erreichbar.
 

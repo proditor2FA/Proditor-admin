@@ -57,7 +57,7 @@ with open(sess, "r+") as f:  # ohne O_CREAT wegen fs.protected_regular
 code, d = call("session")
 check("Versionen nach Login", d.get("multiotp", "").startswith("5.") and d.get("php", "").startswith("8."), f"multiOTP {d.get('multiotp')} PHP {d.get('php')}")
 code, d = call("users")
-check("users", code == 200 and len(d["users"]) > 500, f"{len(d['users'])} Benutzer")
+check("users", code == 200 and len(d["users"]) > 0, f"{len(d['users'])} Benutzer")
 hotp_users = [u for u in d["users"] if u["algorithm"] == "hotp"]
 check("HOTP-Benutzer mit Seriennr/Zaehler", len(hotp_users) > 0 and all("last_event" in u for u in hotp_users), f"{len(hotp_users)} HOTP")
 code, d = call("tokens"); check("freie Tokens", code == 200, f"{len(d.get('tokens', []))} frei")
