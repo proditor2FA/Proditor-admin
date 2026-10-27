@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Proditor</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <img class="brand-mark" src="logo-icon.png" alt="" width="32" height="32">
+      <span class="brand-name">Proditor</span>
+      <span class="brand-sub">multiOTP-Verwaltung <span id="host"></span></span>
+      <span class="brand-versions" id="versions" hidden></span>
+    </div>
+    <nav class="bar-actions" id="bar-actions" hidden>
+      <a class="link-quiet" href="/multiotp.server.php" target="_blank" rel="noopener">Alte Konsole</a>
+      <button type="button" class="btn btn-quiet" id="logout">Abmelden</button>
+    </nav>
+  </header>
+
+  <main id="view-login" class="login" hidden>
+    <form class="login-panel" id="login-form" autocomplete="off">
+      <img class="login-logo" src="logo.png" alt="Proditor" width="220" height="241">
+      <p class="muted">Melde dich mit dem Admin-Passwort von multiOTP an.</p>
+      <label class="field">
+        <span>Passwort</span>
+        <input type="password" id="login-password" required autocomplete="current-password" autofocus>
+      </label>
+      <p class="form-error" id="login-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary">Anmelden</button>
+    </form>
+  </main>
+
+  <main id="view-app" class="app" hidden>
+    <section class="list-pane" aria-label="Benutzer">
+      <div class="list-tools">
+        <div class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input type="search" id="search" placeholder="Benutzer, Beschreibung oder Seriennummer" aria-label="Suchen">
+        </div>
+        <button type="button" class="btn btn-primary" id="new-user">Benutzer anlegen</button>
+      </div>
+      <div class="filters" role="radiogroup" aria-label="Filter" id="filters">
+        <button type="button" role="radio" aria-checked="true" data-filter="all">Alle <span data-count="all"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filter="hotp">HOTP <span data-count="hotp"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filter="totp">TOTP <span data-count="totp"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filter="without2fa">Without2FA <span data-count="without2fa"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filter="dual">Dual-Token <span data-count="dual"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filter="locked">Gesperrt <span data-count="locked"></span></button>
+      </div>
+      <div class="table-wrap">
+        <table class="users">
+          <thead>
+            <tr><th>Benutzer</th><th>Verfahren</th><th>Stick</th><th class="num">Nächster Zähler</th><th class="num">Fehlversuche</th><th>Status</th></tr>
+          </thead>
+          <tbody id="user-rows"></tbody>
+        </table>
+        <p class="empty" id="empty" hidden></p>
+      </div>
+    </section>
+
+    <aside class="detail-pane" id="detail" aria-live="polite">
+      <div class="detail-empty">
+        <p>Wähle links einen Benutzer aus.</p>
+        <p class="muted">Bei HOTP-Sticks kannst du hier den Zählerstand direkt setzen.</p>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="dlg-create" class="dialog">
+    <form method="dialog" id="create-form" class="create-form">
+      <h2>Benutzer anlegen</h2>
+      <div class="grid2">
+        <label class="field"><span>Benutzername</span><input name="user" required maxlength="255"></label>
+        <label class="field"><span>Beschreibung</span><input name="description" maxlength="255"></label>
+        <label class="field"><span>E-Mail</span><input name="email" type="email"></label>
+        <label class="field pin-only"><span>PIN (optional)</span><input name="pin" autocomplete="off" aria-describedby="pin-hint"><small class="muted" id="pin-hint">Wird vor dem Code eingegeben.</small></label>
+      </div>
+      <fieldset class="field">
+        <legend>Anmeldung mit</legend>
+        <div class="kinds">
+          <label class="kind"><input type="radio" name="kind" value="stick" checked><span><strong>Proditor-Stick</strong><small>HOTP</small></span></label>
+          <label class="kind"><input type="radio" name="kind" value="totp"><span><strong>QR-Code</strong><small>TOTP-App</small></span></label>
+          <label class="kind"><input type="radio" name="kind" value="without2fa"><span><strong>Without2FA</strong><small>ohne 2. Faktor</small></span></label>
+        </div>
+      </fieldset>
+      <div class="field stick-picker" id="stick-field">
+        <span id="stick-label">Freien Proditor-Stick auswählen <span class="stick-count" id="stick-count"></span></span>
+        <div class="stick-row">
+          <input type="search" id="stick-filter" placeholder="Seriennummer suchen" autocomplete="off" aria-label="Sticks filtern">
+          <select name="serial" id="stick-select" size="4" aria-labelledby="stick-label" required></select>
+        </div>
+      </div>
+      <p class="form-error" id="create-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-quiet" value="cancel" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-primary" value="ok">Anlegen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-delete" class="dialog">
+    <form method="dialog" id="delete-form">
+      <h2>Benutzer löschen</h2>
+      <p>Das löscht <strong id="delete-name"></strong> auf dem Master. Der nächste Sync entfernt den Benutzer auch auf allen Klonen.</p>
+      <label class="field"><span>Zur Bestätigung den Benutzernamen eingeben</span><input name="confirm" autocomplete="off" required></label>
+      <p class="form-error" id="delete-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-quiet" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-danger">Endgültig löschen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <template id="tpl-detail">
+    <div class="detail">
+      <div class="detail-head">
+        <h2 data-f="user"></h2>
+        <p class="muted" data-f="description"></p>
+        <div class="chips" data-f="chips"></div>
+      </div>
+
+      <section class="counter-block" data-f="counter-block" hidden>
+        <h3>Zählerstand</h3>
+        <p class="muted">Der nächste Code, den der Stick erzeugt, gehört zu diesem Zählerstand.</p>
+        <div class="odometer" data-f="odometer" aria-hidden="true"></div>
+        <form class="counter-form" data-f="counter-form">
+          <label class="field">
+            <span>Nächsten Zählerstand setzen</span>
+            <input name="next" inputmode="numeric" pattern="[0-9]*" required>
+          </label>
+          <button type="submit" class="btn btn-primary">Zähler setzen</button>
+          <p class="hint" data-f="counter-hint"></p>
+        </form>
+      </section>
+
+      <dl class="facts" data-f="facts"></dl>
+
+      <section class="tool">
+        <h3>Code prüfen</h3>
+        <p class="muted">Prüft einen Code wie bei einer Anmeldung. Ein gültiger Code zählt als benutzt.</p>
+        <form class="inline-form" data-f="check-form">
+          <input name="otp" inputmode="numeric" autocomplete="off" aria-label="Code" placeholder="Code" required>
+          <button type="submit" class="btn">Prüfen</button>
+        </form>
+      </section>
+
+      <section class="tool">
+        <h3>Resync</h3>
+        <p class="muted">Zwei direkt aufeinanderfolgende Codes eingeben.</p>
+        <form class="inline-form" data-f="resync-form">
+          <input name="otp1" inputmode="numeric" autocomplete="off" aria-label="Erster Code" placeholder="Erster Code" required>
+          <input name="otp2" inputmode="numeric" autocomplete="off" aria-label="Zweiter Code" placeholder="Zweiter Code" required>
+          <button type="submit" class="btn">Synchronisieren</button>
+        </form>
+      </section>
+
+      <div class="detail-actions">
+        <button type="button" class="btn" data-f="lock"></button>
+        <a class="btn" data-f="qr" target="_blank" rel="noopener">QR-Code drucken</a>
+        <button type="button" class="btn btn-danger-quiet" data-f="delete">Löschen</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
