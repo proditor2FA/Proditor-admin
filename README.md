@@ -49,3 +49,11 @@ Die Oberfläche greift direkt auf die multiOTP-Klasse und deren Dateien zu. Ein 
 ```sh
 python3 test_api.py
 ```
+
+## Lizenz
+
+Copyright (C) 2026 proditor2FA
+
+Dieses Programm ist freie Software: Du kannst es unter den Bedingungen der **GNU Lesser General Public License** weitergeben und verändern, wie von der Free Software Foundation veröffentlicht, entweder Version 3 der Lizenz oder (nach deiner Wahl) jede spätere Version (`LGPL-3.0-or-later`). Das ist dieselbe Lizenz wie bei multiOTP.
+
+Das Programm wird in der Hoffnung verbreitet, dass es nützlich ist, aber **ohne jede Gewährleistung**, auch ohne die stillschweigende Gewährleistung der Marktgängigkeit oder der Eignung für einen bestimmten Zweck. Details stehen in [`COPYING.LESSER`](COPYING.LESSER) (LGPLv3) und [`COPYING`](COPYING) (GPLv3, auf der die LGPLv3 aufbaut).

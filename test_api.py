@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Proditor: API-Test der Verwaltung auf dem Master (laeuft dort als root)."""
+"""Proditor: API-Test der Verwaltung auf dem Master (laeuft dort als root).
+
+SPDX-License-Identifier: LGPL-3.0-or-later
+Copyright (C) 2026 proditor2FA - LGPL-3.0-or-later, siehe COPYING.LESSER
+"""
 import hashlib, hmac, shlex, http.cookiejar, json, os, re, ssl, struct, sys, time, urllib.request
 
 BASE = "https://localhost/admin/"

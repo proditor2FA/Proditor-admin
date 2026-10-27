@@ -2,6 +2,9 @@
 /**
  * Proditor - JSON-API der multiOTP-Verwaltung (auf dem multiOTP-Master installieren).
  *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ * Copyright (C) 2026 proditor2FA - LGPL-3.0-or-later, siehe COPYING.LESSER
+ *
  * Nutzt die multiOTP-Klasse und deren Benutzerdaten direkt, Anmeldung mit dem
  * bestehenden multiOTP-Admin-Passwort. Aenderungen landen in /etc/multiotp/users
  * und werden vom bestehenden rsync an die Klone verteilt.
